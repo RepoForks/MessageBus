@@ -16,7 +16,7 @@ namespace DSoft.Messaging
 
 		private static volatile MessageBus mDefault;
 		private static object syncRoot = new Object();
-		private MessageBusEventHandlerCollection mEventHandlers;
+		private IMessageBusEventHandlerCollection mEventHandlers;
 
         private Dictionary<string, MessageBusEvent> mStickyEvents;
 
@@ -62,7 +62,7 @@ namespace DSoft.Messaging
 		/// Gets the registered event handlers.
 		/// </summary>
 		/// <value>The event handlers.</value>
-		internal MessageBusEventHandlerCollection EventHandlers {
+		internal IMessageBusEventHandlerCollection EventHandlers {
 			get
 			{
 				if (mEventHandlers == null)
@@ -98,10 +98,7 @@ namespace DSoft.Messaging
 			if (EventHandler == null)
 				return;
 
-			if (!EventHandlers.Contains (EventHandler))
-			{
-				EventHandlers.Add (EventHandler);
-			}
+			EventHandlers.Add (EventHandler);
 		}
 
         /// <summary>
@@ -142,22 +139,16 @@ namespace DSoft.Messaging
 		/// <param name="EventHandler">The event handler.</param>
 		public void DeRegister (MessageBusEventHandler EventHandler)
 		{
-			if (EventHandlers.Contains (EventHandler))
-			{
-				EventHandlers.Remove (EventHandler);
-			}
+			EventHandlers.Remove (EventHandler);
 		}
 
 		/// <summary>
 		/// Clear Handlers for the specified event id
 		/// </summary>
-		/// <param name="EventID">Event I.</param>
-		public void Clear (string EventID)
+		/// <param name="eventId">Event I.</param>
+		public void Clear (string eventId)
 		{
-			foreach (var item in EventHandlers.HandlersForEvent(EventID))
-			{
-				EventHandlers.Remove (item);
-			}
+            EventHandlers.RemoveAll(eventId);
 		}
 
 		#endregion
@@ -203,15 +194,15 @@ namespace DSoft.Messaging
 		/// <summary>
 		/// Deregister the event action for a Generic message bus type
 		/// </summary>
-		/// <param name="Action">Action.</param>
+		/// <param name="action">Action.</param>
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		public void DeRegister<T> (Action<object,MessageBusEvent> Action) where T : MessageBusEvent
+		public void DeRegister<T> (Action<object, MessageBusEvent> action) where T : MessageBusEvent
 		{
 			var results = new List<MessageBusEventHandler> (EventHandlers.HandlersForEvent<T> ());
 
 			foreach (var item in results)
 			{
-				if (item.EventAction == Action)
+				if (item.EventAction == action)
 				{
 					EventHandlers.Remove (item);
 				}

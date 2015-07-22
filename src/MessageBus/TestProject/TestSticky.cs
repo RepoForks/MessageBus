@@ -56,7 +56,7 @@ namespace TestProject
         [TestMethod]
         public void PostTwiceStickyEvent()
         {
-            target.PostSticky("stickyEvent", this, new object[] { 1, 2 });
+            target.PostSticky("stickyEvent", this, null);
 
             target.PostSticky("stickyEvent", this, new object[] { 1, 2 });
 
@@ -84,6 +84,7 @@ namespace TestProject
         [TestMethod]
         public void ShouldFireStickyJustAfterRegistration()
         {
+            
             unregisterEvent("stickyEvent");
 
             target.PostSticky("stickyEvent", this, new object[] { 1, 2 });
